@@ -1,17 +1,17 @@
 {
   "format": 1,
   "restore": {
-    "C:\\Users\\tmls02\\source\\repos\\adventofcode2019\\aoc2019\\aoc2019.csproj": {}
+    "C:\\Users\\tmls02\\source\\repos\\aoc2019\\aoc2019\\aoc2019.csproj": {}
   },
   "projects": {
-    "C:\\Users\\tmls02\\source\\repos\\adventofcode2019\\aoc2019\\aoc2019.csproj": {
+    "C:\\Users\\tmls02\\source\\repos\\aoc2019\\aoc2019\\aoc2019.csproj": {
       "version": "1.0.0",
       "restore": {
-        "projectUniqueName": "C:\\Users\\tmls02\\source\\repos\\adventofcode2019\\aoc2019\\aoc2019.csproj",
+        "projectUniqueName": "C:\\Users\\tmls02\\source\\repos\\aoc2019\\aoc2019\\aoc2019.csproj",
         "projectName": "aoc2019",
-        "projectPath": "C:\\Users\\tmls02\\source\\repos\\adventofcode2019\\aoc2019\\aoc2019.csproj",
+        "projectPath": "C:\\Users\\tmls02\\source\\repos\\aoc2019\\aoc2019\\aoc2019.csproj",
         "packagesPath": "C:\\Users\\tmls02\\.nuget\\packages\\",
-        "outputPath": "C:\\Users\\tmls02\\source\\repos\\adventofcode2019\\aoc2019\\obj\\",
+        "outputPath": "C:\\Users\\tmls02\\source\\repos\\aoc2019\\aoc2019\\obj\\",
         "projectStyle": "PackageReference",
         "fallbackFolders": [
           "C:\\Program Files\\dotnet\\sdk\\NuGetFallbackFolder"
