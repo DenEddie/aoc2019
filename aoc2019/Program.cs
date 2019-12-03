@@ -16,6 +16,9 @@ namespace aoc2019
                 case "2":
                     Day2.Execute();
                     break;
+                case "3":
+                    Day3.Execute();
+                    break;
             };
             Console.WriteLine("Waiting to quit...");
             Console.ReadKey();
