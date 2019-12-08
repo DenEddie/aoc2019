@@ -29,6 +29,12 @@ namespace aoc2019
                     case "6":
                         Day6.Execute();
                         break;
+                    case "7":
+                        //Day7.Execute();
+                        break;
+                    case "8":
+                        Day8.Execute();
+                        break;
                 };
                 Console.WriteLine(@"Press q to quit or any key to retry...");
             }while(Console.ReadKey().KeyChar != 'q');
