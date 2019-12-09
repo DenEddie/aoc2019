@@ -30,7 +30,7 @@ namespace aoc2019
                         Day6.Execute();
                         break;
                     case "7":
-                        //Day7.Execute();
+                        Day7.Execute();
                         break;
                     case "8":
                         Day8.Execute();
