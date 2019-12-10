@@ -1,44 +1,41 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Linq;
-using System.Text;
 
 namespace aoc2019
 {
     public class IntCodeComputer
     {
-        private List<int> _program;
-        private int _phase;
-        private bool _phaseSet;
         private int _instructionPointer;
-        private int _output;
+        private int _relativeBase;
 
-        public IntCodeComputer(List<int> program, int? phase)
+
+        public IntCodeComputer(List<long> program)
         {
-            _program = new List<int>(program);
-            _phase = phase ?? 0;
-            _phaseSet = phase.HasValue;
             _instructionPointer = 0;
-            _output = 0;
+            Memory = new List<long>(program);
+            _relativeBase = 0;
         }
 
+        public List<long> Memory { get; private set; }
+
         public bool Halted => GetInstruction() == 99;
+        public bool AtEnd => _instructionPointer == Memory.Count - 1;
 
-        private int GetInstruction() => _program[_instructionPointer] % 100;
+        private int GetInstruction() => (int)(GetDigit(_instructionPointer) % 100);
 
-
-        public int Execute(int input)
+        public long Execute(List<long> input)
         {
             var instruction = GetInstruction();
-            while (_instructionPointer < _program.Count - 1 && instruction != 99)
+            while (!AtEnd && instruction != 99)
             {
                 var keepExecuting = ExecuteInstruction(instruction, input);
                 instruction = keepExecuting ? GetInstruction() : 99;
             }
-            return _output;
+            return Memory.LastOrDefault();
         }
 
-        private bool ExecuteInstruction(int instruction, int input)
+        private bool ExecuteInstruction(int instruction, List<long> input)
         {
             switch (instruction)
             {
@@ -66,6 +63,9 @@ namespace aoc2019
                 case 8:
                     EqualSet();
                     break;
+                case 9:
+                    SetRelativeBase();
+                    break;
                 default:
                     throw new Exception("Something went wrong!!");
             }
@@ -74,71 +74,132 @@ namespace aoc2019
 
         private void Add()
         {
-            var parameters = GetParameters(2).ToList();
-            _program[_program[++_instructionPointer]] = parameters[0] + parameters[1];
+            var parameters = GetParameters();
+            SetDigit(parameters.Item2.Last(), parameters.Item1[0] + parameters.Item1[1]);
             _instructionPointer++;
         }
 
         private void Multiply()
         {
-            var parameters = GetParameters(2).ToList();
-            _program[_program[++_instructionPointer]] = parameters[0] * parameters[1];
+            var parameters = GetParameters();
+            SetDigit(parameters.Item2.Last(), parameters.Item1[0] * parameters.Item1[1]);
             _instructionPointer++;
 
         }
 
-        private void Set(int input)
+        private void Set(List<long> input)
         {
-            _program[_program[++_instructionPointer]] = _phaseSet ? _phase : input;
-            _phaseSet = false;
+            var parameters = GetParameters();
+            SetDigit(parameters.Item2.Last(), input.First());
+            input.RemoveAt(0);
             _instructionPointer++;
         }
 
         private void Get()
         {
-            var parameters = GetParameters(1).ToList();
-            _output = parameters[0];
+            Memory.Add(GetParameters().Item1.First());
             _instructionPointer++;
         }
 
         private void JumpIfTrue()
         {
-            var parameters = GetParameters(2).ToList();
-            _instructionPointer = parameters[0] != 0 ? parameters[1] : _instructionPointer + 1;
+            var parameters = GetParameters().Item1;
+            _instructionPointer = parameters[0] != 0 ? (int)parameters[1] : _instructionPointer + 1;
 
         }
 
         private void JumpIfFalse()
         {
-            var parameters = GetParameters(2).ToList();
-            _instructionPointer = parameters[0] == 0 ? parameters[1] : _instructionPointer + 1;
+            var parameters = GetParameters().Item1;
+            _instructionPointer = parameters[0] == 0 ? (int)parameters[1] : _instructionPointer + 1;
         }
 
         private void LessThanSet()
         {
-            var parameters = GetParameters(2).ToList();
-            _program[_program[++_instructionPointer]] = (parameters[0] < parameters[1]) ? 1 : 0;
+            var parameters = GetParameters();
+            SetDigit(parameters.Item2.First(), (parameters.Item1[0] < parameters.Item1[1]) ? 1 : 0);
             _instructionPointer++;
         }
 
         private void EqualSet()
         {
-            var parameters = GetParameters(2).ToList();
-            _program[_program[++_instructionPointer]] = (parameters[0] == parameters[1]) ? 1 : 0;
+            var parameters = GetParameters();
+            SetDigit(parameters.Item2.First(), (parameters.Item1[0] == parameters.Item1[1]) ? 1 : 0);
             _instructionPointer++;
         }
 
-        private IEnumerable<int> GetParameters(int count)
+        private void SetRelativeBase()
         {
-            var source = _program[_instructionPointer] / 100;
+            _relativeBase += (int)GetParameters().Item1.First();
+            _instructionPointer++;
+        }
 
-            while (count > 0)
+        private Tuple<List<long>, List<int>> GetParameters()
+        {
+            var instruction = (int)GetDigit(_instructionPointer);
+
+            var parameterDefinition = (instruction % 100) switch
             {
-                var digit = source % 10 == 0 ? _program[_program[++_instructionPointer]] : _program[++_instructionPointer];
+                1 => new Tuple<int, int>(2, 1),
+                2 => new Tuple<int, int>(2, 1),
+                3 => new Tuple<int, int>(0, 1),
+                4 => new Tuple<int, int>(1, 0),
+                5 => new Tuple<int, int>(2, 0),
+                6 => new Tuple<int, int>(2, 0),
+                7 => new Tuple<int, int>(2, 1),
+                8 => new Tuple<int, int>(2, 1),
+                9 => new Tuple<int, int>(1, 0),
+                _ => throw new NotImplementedException()
+            };
+
+            var source = instruction / 100;
+
+            var result = new Tuple<List<long>, List<int>>(new List<long>(), new List<int>());
+
+            for (int count = 0; count < parameterDefinition.Item1; count++)
+            {
+                var mode = source % 10;
+                var parameterValue = GetDigit(++_instructionPointer);
+                var digit = mode switch
+                {
+                    0 => GetDigit((int)parameterValue),
+                    1 => parameterValue,
+                    2 => GetDigit(_relativeBase + (int)parameterValue),
+                    _ => throw new Exception($"Unknown parameter mode {mode}")
+                };
                 source /= 10;
-                count--;
-                yield return digit;
+                result.Item1.Add(digit);
             }
+            for (int count = 0; count < parameterDefinition.Item2; count++)
+            {
+                var mode = source % 10;
+                var digit = mode switch
+                {
+                    0 => GetDigit(++_instructionPointer),
+                    2 => _relativeBase + GetDigit(++_instructionPointer),
+                    _ => throw new Exception($"Unknown parameter mode {mode}")
+                };
+                source /= 10;
+                result.Item2.Add((int)digit);
+            }
+            return result;
+        }
+
+        private long GetDigit(int pointer)
+        {
+            while (Memory.Count <= pointer)
+            {
+                Memory.Add(0);
+            }
+            return Memory[pointer];
+        }
+        private void SetDigit(int pointer, long value)
+        {
+            while (Memory.Count <= pointer)
+            {
+                Memory.Add(0);
+            }
+            Memory[pointer] = value;
         }
     }
 }
