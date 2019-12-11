@@ -23,11 +23,13 @@ namespace aoc2019
             var quadrant = 0;
             while (vaporizedCount > 0)
             {
-                var asteroidLines = spaceInput.Item2[quadrant].Sum(x => x.Value.Count);
+                var asteroidLines = spaceInput.Item2[quadrant].Count;
                 if (asteroidLines > vaporizedCount)
                 {
                     //get the 200th;
-                    var asteroid200 = spaceInput.Item2[quadrant].OrderBy(x => x.Key).ElementAt(vaporizedCount - 1).Value.Aggregate((a1, a2) => Math.Abs(a1.X) + Math.Abs(a1.Y) < Math.Abs(a2.X) + Math.Abs(a2.Y) ? a1 : a2);
+                    var asteroid200 = (quadrant % 2 == 1) ? 
+                                      spaceInput.Item2[quadrant].OrderBy(x => x.Key).ElementAt(vaporizedCount-1).Value.Aggregate((a1, a2) => Math.Abs(a1.X) + Math.Abs(a1.Y) < Math.Abs(a2.X) + Math.Abs(a2.Y) ? a1 : a2) :
+                                      spaceInput.Item2[quadrant].OrderByDescending(x => x.Key).ElementAt(vaporizedCount-1).Value.Aggregate((a1, a2) => Math.Abs(a1.X) + Math.Abs(a1.Y) < Math.Abs(a2.X) + Math.Abs(a2.Y) ? a1 : a2);
                     Console.WriteLine($"The 200th asteroid to be vaporized is: ({asteroid200.X + spaceInput.Item1.X}, {asteroid200.Y + spaceInput.Item1.Y})");
                 }
                 vaporizedCount -= asteroidLines;
