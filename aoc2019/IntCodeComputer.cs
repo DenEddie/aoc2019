@@ -24,6 +24,12 @@ namespace aoc2019
 
         private int GetInstruction() => (int)(GetDigit(_instructionPointer) % 100);
 
+        public void Reset()
+        {
+            _instructionPointer = 0;
+            _relativeBase = 0;
+        }
+
         public long Execute(List<long> input)
         {
             var instruction = GetInstruction();
